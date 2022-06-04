@@ -21,7 +21,7 @@ import sys
 import time
 import logging
 import traceback
-from sun_tool.db import db
+from insert_mysql_blob.sun_tool.db import db
 from concurrent.futures import ThreadPoolExecutor
 
 logging.basicConfig(filename='insert_blob.log',
