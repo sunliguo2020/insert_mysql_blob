@@ -21,6 +21,7 @@ CREATE TABLE `sgy_idcard_pic` (
 2022-03-18:只能保存65535字节 原来是sql 字段类型改为 mediumblob
             max_allowed_packet = 10M
 2022-04-08：统计插入失败的文件
+2022-06-04:使用git
 """
 import hashlib
 import os
@@ -28,8 +29,6 @@ import os.path
 import sys
 import time
 import traceback
-
-import pymysql
 from sun_tool.db import db
 
 from concurrent.futures import ThreadPoolExecutor
@@ -75,7 +74,6 @@ def insert_blob(file_path, table='', database='crawl'):
     # 有些文件虽然文件名一样但是md5值可以不同
     # 文件名和MD5值都一样的情况：
     sql = f"select md5sum from {table} where `md5sum` = '{md5sum}' and `file_name` ='{file_name}';"
-    # print(sql)
 
     # print("select md5sum from %(table)s where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;"%{"table":table,"md5sum":md5sum,"file_name":file_name})
     result = db.fetch_one("select md5sum from DaglPerson where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;",
@@ -93,6 +91,7 @@ def insert_blob(file_path, table='', database='crawl'):
             else:
                 print(f"{file_path}删除成功")
         except Exception as e:
+            print(traceback.format_exc())
             print("删除出错", e)
 
     # 插入
