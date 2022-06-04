@@ -88,16 +88,15 @@ def insert_blob(file_path, table='', database='crawl'):
     # 文件名和MD5值都一样的情况：
     print("准备查询数据库中是否有该文件")
 
-    # result = db.fetch_one(f"select md5sum from {table} where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;",md5sum=md5sum, file_name=file_name)
-    result = db.fetch_one('select count(*) from Da;')
-    print("result =",result)
+    result = db.fetch_one(f"select md5sum from {table} where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;",md5sum=md5sum, file_name=file_name)
+
     if result is not None:
 
         print(f'{file_name}文件已经存在！md5:{md5sum}')
 
         # 删除已经存在的文件
         try:
-            # os.remove(file_path)
+            os.remove(file_path)
             if os.path.isfile(file_path):
                 print(f"{file_path}删除失败")
             else:
@@ -110,11 +109,12 @@ def insert_blob(file_path, table='', database='crawl'):
     else:
         # INSERT INTO `file` (`id`, `file_name`, `md5sum`, `mod_time`) VALUES ('1', '1', '1', '2022-03-13 22:54:42')
         query = f'insert into {table}  values (NULL,%s,%s,%s,%s)'
-        # print(modtime)
+
         args = (file_name, md5sum, blob, modtime)
-        # print(args)
+
         try:
-            print(f"准备插入{args}")
+            # print("query:",query)
+            # print(f"args:{args}")
             db.exec(query, args)
 
         except Exception as e:

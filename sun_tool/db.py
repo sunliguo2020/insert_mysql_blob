@@ -37,12 +37,12 @@ class DBHelper(object):
         for item in args:
             item.close()
 
-    def exec(self, sql, **kwargs):
+    def exec(self, sql, args=None):
         conn, cur = self.get_conn_cursor()
-        cur.execute(sql, kwargs)
+        cur.execute(sql, args)
         conn.commit()
 
-    def fetch_one(self, sql, kwargs):
+    def fetch_one(self, sql, **kwargs):
         """
         
         :param sql:
@@ -52,11 +52,13 @@ class DBHelper(object):
         print("fetch one ")
         print(sql)
         print(kwargs)
+
         conn, cur = self.get_conn_cursor()
         cur.execute(sql, kwargs)
-        # cur.execute(sql)
+
         result = cur.fetchone()
         self.close_conn_cursor(cur, conn)
+
         return result
 
     def fetch_all(self, sql, **kwargs):
