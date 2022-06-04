@@ -28,10 +28,8 @@ import os.path
 import sys
 import time
 import traceback
-# import chardet
 import pymysql
-from db import db
-
+from sun_tool.db import db
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -56,29 +54,6 @@ def file_modtime(filename):
     """
     file_modify_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getmtime(filename)))
     return file_modify_time
-
-
-def exec_mysql(table='', database='crawl'):
-    try:
-        conn = pymysql.Connect(
-            host='127.0.0.1',
-            user='root',
-            password='',
-            port=3306,
-            db=database
-        )
-        cur = conn.cursor()
-    except Exception as e:
-        print(traceback.format_exc())
-        print("连接数据库失败：", e)
-        # sys.exit(1)
-
-        return -1
-    else:
-        return cur
-    # finally:
-    #     conn.close()
-    #     cur.close()
 
 
 def insert_blob(file_path, table='', database='crawl'):
