@@ -24,10 +24,10 @@ import traceback
 from sun_tool.db import db
 from concurrent.futures import ThreadPoolExecutor
 
-
 logging.basicConfig(filename='insert_blob.log',
                     level=logging.DEBUG,
                     format='%(asctime)s-%(message)s')
+
 
 def file_blob(filename):
     """
@@ -42,6 +42,7 @@ def file_blob(filename):
         return blob
     else:
         return None
+
 
 def file_md5sum(filename):
     """
