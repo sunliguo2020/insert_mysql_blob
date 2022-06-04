@@ -113,10 +113,10 @@ def insert_blob(file_path, table='', database='crawl'):
         args = (file_name, md5sum, blob, modtime)
         # print(args)
         try:
-            db.execute(query, args)
-        
+            db.exec(query, args)
+
         except Exception as e:
-            logging.DEBUG(e)
+            logging.debug(file_name,"插入失败",e)
             print(file_name, "插入失败！", e)
             # with open(insert_file_failed, 'a', encoding='utf-8') as f:
             #     f.write(str(insert_time) + f' {file_name} 插入失败 {e} ' + "\n")
