@@ -12,5 +12,5 @@ CREATE TABLE `workers` (
   KEY `md` (`md5sum`) USING HASH,
   KEY `fn` (`file_name`) USING HASH
 ) ENGINE=MyISAM AUTO_INCREMENT=443340 DEFAULT CHARSET=utf8mb4;
-```commandline
+
 ```
