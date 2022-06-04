@@ -12,7 +12,7 @@
             max_allowed_packet = 10M
 2022-04-08：统计插入失败的文件
 2022-06-04:使用git
-2022-06-04:准备增加log
+2022-06-04:准备增加logging
 """
 import hashlib
 import os
@@ -30,12 +30,25 @@ logging.basicConfig(filename='insert_blob.log',
                     format='%(asctime)s-%(message)s')
 
 def file_blob(filename):
-    with open(filename, 'rb') as f:
-        blob = f.read()
-    return blob
+    """
+    返回文件的二进制
+    :param filename:
+    :return:
+    """
+    if os.path.isfile(filename):
 
+        with open(filename, 'rb') as f:
+            blob = f.read()
+        return blob
+    else:
+        return None
 
 def file_md5sum(filename):
+    """
+    返回文件的md5值
+    :param filename:
+    :return:
+    """
     with open(filename, 'rb') as fp:
         f_content = fp.read()
         fmd5 = hashlib.md5(f_content)
@@ -44,11 +57,12 @@ def file_md5sum(filename):
 
 def file_modtime(filename):
     """
-
+    返回文件的修改时间
     :param filename:
     :return:
     """
-    file_modify_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getmtime(filename)))
+    file_modify_time = time.strftime("%Y-%m-%d %H:%M:%S",
+                                     time.localtime(os.path.getmtime(filename)))
     return file_modify_time
 
 
@@ -74,7 +88,7 @@ def insert_blob(file_path, table='', database='crawl'):
     # print("select md5sum from %(table)s where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;"%{"table":table,"md5sum":md5sum,"file_name":file_name})
     result = db.fetch_one("select md5sum from DaglPerson where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;",
                           table=table, md5sum=md5sum, file_name=file_name)
-    # result = db.fetch_one(sql)
+
     if result is not None:
 
         print(f'{file_name}文件已经存在！md5:{md5sum}')
@@ -90,7 +104,7 @@ def insert_blob(file_path, table='', database='crawl'):
             print(traceback.format_exc())
             print("删除出错", e)
 
-    # 插入
+    # 插入该文件
     else:
         # INSERT INTO `file` (`id`, `file_name`, `md5sum`, `mod_time`) VALUES ('1', '1', '1', '2022-03-13 22:54:42')
         query = f'insert into {table}  values (NULL,%s,%s,%s,%s)'
