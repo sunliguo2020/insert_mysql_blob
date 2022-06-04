@@ -12,15 +12,16 @@
             max_allowed_packet = 10M
 2022-04-08：统计插入失败的文件
 2022-06-04:使用git
+2022-06-04:准备增加log
 """
 import hashlib
 import os
 import os.path
 import sys
 import time
+import logging
 import traceback
 from sun_tool.db import db
-
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -45,6 +46,7 @@ def file_modtime(filename):
     """
     file_modify_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getmtime(filename)))
     return file_modify_time
+
 
 def insert_blob(file_path, table='', database='crawl'):
     """
@@ -102,6 +104,7 @@ def insert_blob(file_path, table='', database='crawl'):
 
 
 if __name__ == '__main__':
+
     # 导入文件所在的目录
     root_dir = r'F:\pycharm\ShouGuangYun\jiankang\DaglPerson'
     # 将要导入的数据表
@@ -120,4 +123,3 @@ if __name__ == '__main__':
                 print(file_count, file_path)
 
                 t.submit(insert_blob, file_path, table)
-                # insert_blob(file_path, table=table)
