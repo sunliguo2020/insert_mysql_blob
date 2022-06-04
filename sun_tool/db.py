@@ -43,7 +43,15 @@ class DBHelper(object):
         conn.commit()
 
     def fetch_one(self, sql, kwargs):
-        # print(kwargs)
+        """
+        
+        :param sql:
+        :param kwargs:
+        :return:
+        """
+        print("fetch one ")
+        print(sql)
+        print(kwargs)
         conn, cur = self.get_conn_cursor()
         cur.execute(sql, kwargs)
         # cur.execute(sql)
@@ -52,6 +60,7 @@ class DBHelper(object):
         return result
 
     def fetch_all(self, sql, **kwargs):
+        print("fetch all")
         conn, cur = self.get_conn_cursor()
         cur.execute(sql, kwargs)
         result = cur.fetchall()

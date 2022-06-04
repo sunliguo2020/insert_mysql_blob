@@ -12,7 +12,9 @@
             max_allowed_packet = 10M
 2022-04-08：统计插入失败的文件
 2022-06-04:使用git
-2022-06-04:准备增加logging
+            准备增加logging
+            如果插入的文件是空文件的时候，会出现bug
+
 """
 import hashlib
 import os
@@ -21,7 +23,7 @@ import sys
 import time
 import logging
 import traceback
-from insert_mysql_blob.sun_tool.db import db
+from sun_tool.db import db
 from concurrent.futures import ThreadPoolExecutor
 
 logging.basicConfig(filename='insert_blob.log',
@@ -84,19 +86,18 @@ def insert_blob(file_path, table='', database='crawl'):
     # 检查文件是否已经存在 md5sum 值相同，并且文件名相同
     # 有些文件虽然文件名一样但是md5值可以不同
     # 文件名和MD5值都一样的情况：
-    sql = f"select md5sum from {table} where `md5sum` = '{md5sum}' and `file_name` ='{file_name}';"
+    print("准备查询数据库中是否有该文件")
 
-    # print("select md5sum from %(table)s where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;"%{"table":table,"md5sum":md5sum,"file_name":file_name})
-    result = db.fetch_one("select md5sum from DaglPerson where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;",
-                          table=table, md5sum=md5sum, file_name=file_name)
-
+    # result = db.fetch_one(f"select md5sum from {table} where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;",md5sum=md5sum, file_name=file_name)
+    result = db.fetch_one('select count(*) from Da;')
+    print("result =",result)
     if result is not None:
 
         print(f'{file_name}文件已经存在！md5:{md5sum}')
 
         # 删除已经存在的文件
         try:
-            os.remove(file_path)
+            # os.remove(file_path)
             if os.path.isfile(file_path):
                 print(f"{file_path}删除失败")
             else:
@@ -113,6 +114,7 @@ def insert_blob(file_path, table='', database='crawl'):
         args = (file_name, md5sum, blob, modtime)
         # print(args)
         try:
+            print(f"准备插入{args}")
             db.exec(query, args)
 
         except Exception as e:
@@ -134,7 +136,7 @@ if __name__ == '__main__':
         sys.exit(-1)
     file_count = 0
 
-    with ThreadPoolExecutor(max_workers=100) as t:
+    with ThreadPoolExecutor(max_workers=1) as t:
         for root, dirs, files in os.walk(root_dir):
             for file in files:
                 file_count += 1
