@@ -114,9 +114,9 @@ def insert_blob(file_path, table='', database='crawl'):
         # print(args)
         try:
             db.execute(query, args)
-            # conn.commit()
-            # print(f'{file_name}插入成功！')
+        
         except Exception as e:
+            logging.DEBUG(e)
             print(file_name, "插入失败！", e)
             # with open(insert_file_failed, 'a', encoding='utf-8') as f:
             #     f.write(str(insert_time) + f' {file_name} 插入失败 {e} ' + "\n")
