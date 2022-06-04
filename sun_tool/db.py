@@ -49,9 +49,9 @@ class DBHelper(object):
         :param kwargs:
         :return:
         """
-        print("fetch one ")
-        print(sql)
-        print(kwargs)
+        # print("fetch one ")
+        # print(sql)
+        # print(kwargs)
 
         conn, cur = self.get_conn_cursor()
         cur.execute(sql, kwargs)
