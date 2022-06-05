@@ -13,7 +13,7 @@
 2022-04-08：统计插入失败的文件
 2022-06-04:使用git
             准备增加logging
-            如果插入的文件是空文件的时候，会出现bug
+
 
 """
 import hashlib
@@ -26,9 +26,14 @@ import traceback
 from sun_tool.db import db
 from concurrent.futures import ThreadPoolExecutor
 
+'''
+debug,info,warning,error,critical
+'''
 logging.basicConfig(filename='insert_blob.log',
-                    level=logging.DEBUG,
-                    format='%(asctime)s-%(message)s')
+                    level="DEBUG",
+                    filemode='a',
+                    encoding='utf-8',
+                    format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(message)s')
 
 
 def file_blob(filename):
@@ -87,15 +92,15 @@ def check_del(file_path, md5sum, table=''):
         try:
             os.remove(file_path)
             if os.path.isfile(file_path):
-                print(f"{file_path}删除失败")
+                logging.warning(f"{file_path}删除失败")
             else:
-                print(f"{file_path}删除成功")
+                logging.info(f"{file_path}删除成功")
         except Exception as e:
             print(traceback.format_exc())
-            print("删除出错", e)
+            logging.error("删除出错", e)
         return 1
     else:
-        print("数据库中不存在该文件")
+        logging.info("数据库中不存在该文件")
         return None
 
 
@@ -116,28 +121,30 @@ def insert_blob(file_path, table='', database='crawl'):
     # 检查文件是否已经存在 md5sum 值相同，并且文件名相同
     # 有些文件虽然文件名一样但是md5值可以不同
     # 文件名和MD5值都一样的情况：
-    print(f"准备查询数据库中是否有该文件:{file_name}")
+    logging.debug(f"准备查询数据库中是否有该文件:{file_name}")
 
     result = check_del(file_path, md5sum, table)
     if result == 1:
-        print("有该文件并且已删除")
+        logging.info(f"{file_path}有该文件并且已删除")
     elif result is None:  # 查询不到该文件，准备插入
-        print("查询不到该文件，准备插入")
-        # INSERT INTO `file` (`id`, `file_name`, `md5sum`, `mod_time`) VALUES ('1', '1', '1', '2022-03-13 22:54:42')
+        logging.debug(f"{file_name}查询不到该文件，准备插入")
         query = f'insert into {table}  values (NULL,%s,%s,%s,%s)'
         args = (file_name, md5sum, blob, modtime)
 
         try:
             db.exec(query, args)
         except Exception as e:
-            logging.debug(file_name, "插入失败", e)
+            logging.error(file_name, "插入失败", e)
             print(file_name, "插入失败！", e)
             # with open(insert_file_failed, 'a', encoding='utf-8') as f:
             #     f.write(str(insert_time) + f' {file_name} 插入失败 {e} ' + "\n")
-        else: #插入成功，准备检查并删除
-            result = check_del(file_path,md5sum,table)
+        else:  # 插入成功，准备检查并删除
+            result = check_del(file_path, md5sum, table)
             if result == 1:
                 print("删除成功")
+    else:
+        print("未知！")
+
 
 if __name__ == '__main__':
 
