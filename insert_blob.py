@@ -86,7 +86,7 @@ def check_del(file_path, md5sum, table=''):
     result = db.fetch_one(sql, md5sum=md5sum, file_name=file_name)
     if result is not None:
 
-        print(f'{file_name}文件已经存在！md5:{md5sum}')
+        logging.info(f'{file_name}文件已经存在！md5:{md5sum}')
 
         # 删除已经存在的文件
         try:
@@ -112,7 +112,7 @@ def insert_blob(file_path, table='', database='crawl'):
     :param table:   将要插入的数据表
     :return:
     """
-    # 准备
+    # 准备材料
     file_name = os.path.basename(file_path)
     md5sum = file_md5sum(file_path)
     blob = file_blob(file_path)
