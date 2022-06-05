@@ -26,6 +26,7 @@ import traceback
 from sun_tool.db import db
 from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor
+from concurrent.futures import as_completed
 
 '''
 debug,info,warning,error,critical
@@ -160,10 +161,16 @@ if __name__ == '__main__':
         sys.exit(-1)
 
     file_count = 0
-
-    with ThreadPoolExecutor(max_workers=10) as t:
+    futures = []
+    pool_result = []
+    with ThreadPoolExecutor(max_workers=30) as t:
         for file_path in dir_walk(root_dir):
-
+            file_count += 1
             print(file_count, file_path)
+            #向线程池中提交任务
+            futures.append(t.submit(insert_blob, file_path, table))
+        #等待返回的结果
+        for future in as_completed(futures):
+            pool_result.append(future)
 
-            t.submit(insert_blob, file_path, table)
+    print(pool_result[:20])
