@@ -6,6 +6,9 @@
  @File : test.py
  @Project : pycharm
 '''
+'''
+放一些测试的代码
+'''
 from sun_tool.db import db
 
 if __name__ == '__main__':
