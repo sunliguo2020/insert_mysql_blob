@@ -24,6 +24,7 @@ import time
 import logging
 import traceback
 from sun_tool.db import db
+from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor
 
 '''
@@ -79,7 +80,8 @@ def check_del(file_path, md5sum, table=''):
     检查数据表中是否有该文件，如果有则删除
     :param file_path:
     :param md5sum:
-    :return:
+    :param table:
+    :return: 数据库中没有该文件则返回None，有并且删除了返回1.
     """
     file_name = os.path.basename(file_path)
     sql = f'select md5sum from {table} where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;'
@@ -156,13 +158,12 @@ if __name__ == '__main__':
     if not os.path.isdir(root_dir):
         print(root_dir, "不是一个目录")
         sys.exit(-1)
+
     file_count = 0
 
     with ThreadPoolExecutor(max_workers=10) as t:
-        for root, dirs, files in os.walk(root_dir):
-            for file in files:
-                file_count += 1
-                file_path = os.path.join(root, file)
-                print(file_count, file_path)
+        for file_path in dir_walk(root_dir):
 
-                t.submit(insert_blob, file_path, table)
+            print(file_count, file_path)
+
+            t.submit(insert_blob, file_path, table)
