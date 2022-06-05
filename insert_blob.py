@@ -14,7 +14,10 @@
 2022-06-04:使用git
             准备增加logging
 
-
+遗留问题：
+    1、线程池似乎没有起作用。
+    2、
+    3、
 """
 import hashlib
 import os
@@ -25,8 +28,7 @@ import logging
 import traceback
 from sun_tool.db import db
 from sun_tool.dir_walk import dir_walk
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import as_completed
+from concurrent.futures import ThreadPoolExecutor,as_completed
 
 '''
 debug,info,warning,error,critical
@@ -103,7 +105,7 @@ def check_del(file_path, md5sum, table=''):
             logging.error("删除出错", e)
         return 1
     else:
-        logging.info("数据库中不存在该文件")
+        logging.info(f"数据库中不存在该文件{file_name}")
         return None
 
 
@@ -163,6 +165,7 @@ if __name__ == '__main__':
     file_count = 0
     futures = []
     pool_result = []
+
     with ThreadPoolExecutor(max_workers=30) as t:
         for file_path in dir_walk(root_dir):
             file_count += 1
