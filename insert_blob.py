@@ -135,13 +135,13 @@ def insert_blob(file_path, table='', database='crawl'):
             db.exec(query, args)
         except Exception as e:
             logging.error(file_name, "插入失败", e)
-            print(file_name, "插入失败！", e)
+
             # with open(insert_file_failed, 'a', encoding='utf-8') as f:
             #     f.write(str(insert_time) + f' {file_name} 插入失败 {e} ' + "\n")
         else:  # 插入成功，准备检查并删除
             result = check_del(file_path, md5sum, table)
             if result == 1:
-                print("删除成功")
+                logging.info("删除成功")
     else:
         print("未知！")
 
