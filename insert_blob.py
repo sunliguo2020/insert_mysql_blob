@@ -14,7 +14,10 @@
 2022-06-04:使用git
             准备增加logging
 
-
+遗留问题：
+    1、线程池似乎没有起作用。
+    2、
+    3、
 """
 import hashlib
 import os
@@ -24,7 +27,8 @@ import time
 import logging
 import traceback
 from sun_tool.db import db
-from concurrent.futures import ThreadPoolExecutor
+from sun_tool.dir_walk import dir_walk
+from concurrent.futures import ThreadPoolExecutor,as_completed
 
 '''
 debug,info,warning,error,critical
@@ -79,14 +83,15 @@ def check_del(file_path, md5sum, table=''):
     检查数据表中是否有该文件，如果有则删除
     :param file_path:
     :param md5sum:
-    :return:
+    :param table:
+    :return: 数据库中没有该文件则返回None，有并且删除了返回1.
     """
     file_name = os.path.basename(file_path)
     sql = f'select md5sum from {table} where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;'
     result = db.fetch_one(sql, md5sum=md5sum, file_name=file_name)
     if result is not None:
 
-        print(f'{file_name}文件已经存在！md5:{md5sum}')
+        logging.info(f'{file_name}文件已经存在！md5:{md5sum}')
 
         # 删除已经存在的文件
         try:
@@ -100,7 +105,7 @@ def check_del(file_path, md5sum, table=''):
             logging.error("删除出错", e)
         return 1
     else:
-        logging.info("数据库中不存在该文件")
+        logging.info(f"数据库中不存在该文件{file_name}")
         return None
 
 
@@ -112,7 +117,7 @@ def insert_blob(file_path, table='', database='crawl'):
     :param table:   将要插入的数据表
     :return:
     """
-    # 准备
+    # 准备材料
     file_name = os.path.basename(file_path)
     md5sum = file_md5sum(file_path)
     blob = file_blob(file_path)
@@ -141,7 +146,7 @@ def insert_blob(file_path, table='', database='crawl'):
         else:  # 插入成功，准备检查并删除
             result = check_del(file_path, md5sum, table)
             if result == 1:
-                logging.info("删除成功")
+                logging.info(f"插入{file_path}后删除成功")
     else:
         print("未知！")
 
@@ -156,13 +161,19 @@ if __name__ == '__main__':
     if not os.path.isdir(root_dir):
         print(root_dir, "不是一个目录")
         sys.exit(-1)
+
     file_count = 0
+    futures = []
+    pool_result = []
 
-    with ThreadPoolExecutor(max_workers=10) as t:
-        for root, dirs, files in os.walk(root_dir):
-            for file in files:
-                file_count += 1
-                file_path = os.path.join(root, file)
-                print(file_count, file_path)
+    with ThreadPoolExecutor(max_workers=30) as t:
+        for file_path in dir_walk(root_dir):
+            file_count += 1
+            print(file_count, file_path)
+            #向线程池中提交任务
+            futures.append(t.submit(insert_blob, file_path, table))
+        #等待返回的结果
+        for future in as_completed(futures):
+            pool_result.append(future.result())
 
-                t.submit(insert_blob, file_path, table)
+    print(pool_result[:20])
