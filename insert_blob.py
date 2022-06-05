@@ -144,7 +144,7 @@ def insert_blob(file_path, table='', database='crawl'):
         else:  # 插入成功，准备检查并删除
             result = check_del(file_path, md5sum, table)
             if result == 1:
-                logging.info("删除成功")
+                logging.info(f"插入{file_path}后删除成功")
     else:
         print("未知！")
 
@@ -171,6 +171,6 @@ if __name__ == '__main__':
             futures.append(t.submit(insert_blob, file_path, table))
         #等待返回的结果
         for future in as_completed(futures):
-            pool_result.append(future)
+            pool_result.append(future.result())
 
     print(pool_result[:20])
