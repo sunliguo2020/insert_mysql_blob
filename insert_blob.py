@@ -126,7 +126,7 @@ def insert_blob(file_path, table='', database='crawl'):
     # 检查文件是否已经存在 md5sum 值相同，并且文件名相同
     # 有些文件虽然文件名一样但是md5值可以不同
     # 文件名和MD5值都一样的情况：
-    logging.debug(f"准备查询数据库中是否有该文件:{file_name}")
+    logging.debug(f"查询数据库中是否有该文件:{file_name}")
 
     result = check_del(file_path, md5sum, table)
     if result == 1:
@@ -154,7 +154,7 @@ def insert_blob(file_path, table='', database='crawl'):
 if __name__ == '__main__':
 
     # 导入文件所在的目录
-    root_dir = r'F:\pycharm\ShouGuangYun\jiankang\Head_pic2'
+    root_dir = r'F:\pycharm\ShouGuangYun\jiankang\Head_pic'
     # 将要导入的数据表
     table = 'Head_pic'
 
