@@ -18,7 +18,7 @@ def read_blob(md5sum='', database='crawl', table=''):
     """
 
     try:
-        conn = pymysql.Connect(host='192.168.1.207',
+        conn = pymysql.Connect(host='127.0.0.1',
                                port=3306,
                                user='root',
                                password='admin',
