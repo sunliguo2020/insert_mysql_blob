@@ -11,6 +11,10 @@
 '''
 from sun_tool.db import db
 
+
+from insert_blob import file_md5sum
+
+print(file_md5sum('13001530199.txt'))
 if __name__ == '__main__':
     print(db)
     db.fetch_one("select count(*) from token_file;",())
