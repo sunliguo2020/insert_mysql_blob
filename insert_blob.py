@@ -10,13 +10,13 @@
 
 2022-03-18:只能保存65535字节 原来是sql 字段类型改为 mediumblob
             max_allowed_packet = 10M
-2022-04-08：统计插入失败的文件
-2022-06-04:使用git
+2022-04-08：统计插入失败的文件（后来注释了）
+2022-06-04:使用git统一管理，以后就不会很混乱了。
             准备增加logging
 
 遗留问题：
     1、线程池似乎没有起作用。
-    2、
+    2、加入的文件夹和数据表是不是单独放一个文件，不用修改这个文件？
     3、
 """
 import hashlib
@@ -172,7 +172,8 @@ if __name__ == '__main__':
             print(file_count, file_path)
             #向线程池中提交任务
             futures.append(t.submit(insert_blob, file_path, table))
-        #等待返回的结果
+
+        #等待返回的结果，结果都是None，暂时没发现改怎么用
         for future in as_completed(futures):
             pool_result.append(future.result())
 
