@@ -19,15 +19,23 @@ import json
 # if __name__ == '__main__':
 #     print(db)
 #     db.fetch_one("select count(*) from token_file;",())
-json_file = 'config.json'
-with open(json_file,encoding='utf-8') as fp:
-    cfg = json.load(fp)
-
-print(cfg)
-print(cfg.get('mysql'))
+# json_file = 'config.json'
+# with open(json_file,encoding='utf-8') as fp:
+#     cfg = json.load(fp)
+#
+# print(cfg)
+# print(cfg.get('mysql'))
 # import glob
 #
 # print(glob.iglob('d:\pycharm'))
 # for i in glob.iglob('d:\*'):
 #     print(i)
 #     # break
+
+#测试通配符
+
+from sun_tool.dir_walk import dir_walk
+
+for i in dir_walk(r'd:\pycha*'):
+    print(i)
+    # break
