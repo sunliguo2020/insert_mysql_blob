@@ -16,13 +16,11 @@
 
 遗留问题：
     1、线程池似乎没有起作用。
-    2、加入的文件夹和数据表是不是单独放一个文件，不用修改这个文件？
-    3、
+    2、
 """
 import hashlib
 import os
 import os.path
-import sys
 import time
 import logging
 import traceback
@@ -110,7 +108,7 @@ def check_del(file_path, md5sum, table=''):
         return None
 
 
-def insert_blob(file_path, table='', database='crawl'):
+def insert_blob(file_path, table=''):
     """
     把文件插入到mysql中
     :param file_path: 要插入的文件路径
@@ -142,8 +140,6 @@ def insert_blob(file_path, table='', database='crawl'):
         except Exception as e:
             logging.error(file_name, "插入失败", e)
 
-            # with open(insert_file_failed, 'a', encoding='utf-8') as f:
-            #     f.write(str(insert_time) + f' {file_name} 插入失败 {e} ' + "\n")
         else:  # 插入成功，准备检查并删除
             result = check_del(file_path, md5sum, table)
             if result == 1:
@@ -162,11 +158,6 @@ if __name__ == '__main__':
     root_dir = cfg.get('root_dir')
     # 将要导入的数据表
     table = cfg.get('table')
-
-    #支持通配符后，这个就多余了
-    # if not os.path.isdir(root_dir):
-    #     print(root_dir, "不是一个目录")
-    #     sys.exit(-1)
 
     file_count = 0
     futures = []
