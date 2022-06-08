@@ -10,13 +10,13 @@
 
 2022-03-18:只能保存65535字节 原来是sql 字段类型改为 mediumblob
             max_allowed_packet = 10M
-2022-04-08：统计插入失败的文件
-2022-06-04:使用git
+2022-04-08：统计插入失败的文件（后来注释了）
+2022-06-04:使用git统一管理，以后就不会很混乱了。
             准备增加logging
 
 遗留问题：
     1、线程池似乎没有起作用。
-    2、
+    2、加入的文件夹和数据表是不是单独放一个文件，不用修改这个文件？
     3、
 """
 import hashlib
@@ -26,6 +26,7 @@ import sys
 import time
 import logging
 import traceback
+import json
 from sun_tool.db import db
 from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor,as_completed
@@ -34,7 +35,7 @@ from concurrent.futures import ThreadPoolExecutor,as_completed
 debug,info,warning,error,critical
 '''
 logging.basicConfig(filename='insert_blob.log',
-                    level="DEBUG",
+                    level=logging.DEBUG,
                     filemode='a',
                     encoding='utf-8',
                     format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(message)s')
@@ -153,10 +154,15 @@ def insert_blob(file_path, table='', database='crawl'):
 
 if __name__ == '__main__':
 
+    json_file = 'config.json'
+    with open(json_file,encoding='utf-8') as fp:
+        cfg = json.load(fp)
+
     # 导入文件所在的目录
-    root_dir = r'F:\pycharm\ShouGuangYun\jiankang\Head_pic'
+    root_dir = cfg.get['root_dir']
     # 将要导入的数据表
-    table = 'Head_pic'
+    table = cfg.get['table']
+
 
     if not os.path.isdir(root_dir):
         print(root_dir, "不是一个目录")
@@ -172,8 +178,9 @@ if __name__ == '__main__':
             print(file_count, file_path)
             #向线程池中提交任务
             futures.append(t.submit(insert_blob, file_path, table))
-        #等待返回的结果
-        for future in as_completed(futures):
-            pool_result.append(future.result())
 
-    print(pool_result[:20])
+        #等待返回的结果，结果都是None，暂时没发现改怎么用
+        # for future in as_completed(futures):
+        #     pool_result.append(future.result())
+
+    # print(pool_result[:20])

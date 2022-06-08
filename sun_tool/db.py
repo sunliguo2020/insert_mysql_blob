@@ -8,10 +8,11 @@
 '''
 import pymysql
 from dbutils.pooled_db import PooledDB
+import json
 
 
 class DBHelper(object):
-    def __init__(self):
+    def __init__(self,host=None,user=None,password=None):
         self.pool = PooledDB(
             creator=pymysql,
             maxconnections=50,
@@ -20,10 +21,10 @@ class DBHelper(object):
             blocking=True,
             setsession=[],
             ping=0,
-            host='127.0.0.1',
+            host=host,
             port=3306,
-            user='root',
-            password='admin',
+            user=user,
+            password=password,
             database='crawl',
             charset='utf8'
         )
@@ -69,5 +70,12 @@ class DBHelper(object):
         self.close_conn_cursor(cur, conn)
         return result
 
+json_file = 'config.json'
+with open(json_file,encoding='utf-8') as fp:
+    cfg = json.load(fp)
 
-db = DBHelper()
+host = cfg.get['mysql'].get['host']
+user = cfg.get['mysql'].get['user']
+password = cfg.get['mysql'].get['password']
+# host = cfg.get['mysql'].get['host']
+db = DBHelper(host=host,user=user,password=password)

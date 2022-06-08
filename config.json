@@ -1,0 +1,9 @@
+{
+  "root_dir": "F:\\pycharm\\ShouGuangYun\\jiankang\\Head_pic",
+  "table": "Head_pic",
+  "mysql": {
+    "user": "root",
+    "password": "admin",
+    "host": "127.0.0.1",
+  }
+}
