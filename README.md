@@ -33,9 +33,19 @@ CREATE TABLE `table_name` (
   root_dir = r''
   # 将要导入的数据表
   table = 'Head_pic'
+直接修改配置文件config.json
 ```
 
 
 
 #### 3、用python解释器执行insert_blob.py
 
+
+
+#### change log:
+
+2022-06-08:
+
+1、添加配置文件
+
+2、遍历文件夹支持通配符（glob库）
