@@ -74,8 +74,8 @@ json_file = 'config.json'
 with open(json_file,encoding='utf-8') as fp:
     cfg = json.load(fp)
 
-host = cfg.get['mysql'].get['host']
-user = cfg.get['mysql'].get['user']
-password = cfg.get['mysql'].get['password']
-# host = cfg.get['mysql'].get['host']
+host = cfg.get('mysql').get('host')
+user = cfg.get('mysql').get('user')
+password = cfg.get('mysql').get('password')
+# host = cfg.get('mysql').get('host')
 db = DBHelper(host=host,user=user,password=password)

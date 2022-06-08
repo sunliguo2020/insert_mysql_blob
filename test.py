@@ -19,15 +19,15 @@ import json
 # if __name__ == '__main__':
 #     print(db)
 #     db.fetch_one("select count(*) from token_file;",())
-# json_file = 'config.json'
-# with open(json_file,encoding='utf-8') as fp:
-#     cfg = json.load(fp)
-#
-# print(cfg)
-# print(type(cfg))
-import glob
+json_file = 'config.json'
+with open(json_file,encoding='utf-8') as fp:
+    cfg = json.load(fp)
 
-print(glob.iglob('d:\pycharm'))
-for i in glob.iglob('d:\*'):
-    print(i)
-    # break
+print(cfg)
+print(cfg.get('mysql'))
+# import glob
+#
+# print(glob.iglob('d:\pycharm'))
+# for i in glob.iglob('d:\*'):
+#     print(i)
+#     # break
