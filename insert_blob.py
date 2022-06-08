@@ -163,10 +163,10 @@ if __name__ == '__main__':
     # 将要导入的数据表
     table = cfg.get('table')
 
-
-    if not os.path.isdir(root_dir):
-        print(root_dir, "不是一个目录")
-        sys.exit(-1)
+    #支持通配符后，这个就多余了
+    # if not os.path.isdir(root_dir):
+    #     print(root_dir, "不是一个目录")
+    #     sys.exit(-1)
 
     file_count = 0
     futures = []
