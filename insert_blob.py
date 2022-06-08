@@ -159,9 +159,9 @@ if __name__ == '__main__':
         cfg = json.load(fp)
 
     # 导入文件所在的目录
-    root_dir = cfg.get['root_dir']
+    root_dir = cfg.get('root_dir')
     # 将要导入的数据表
-    table = cfg.get['table']
+    table = cfg.get('table')
 
 
     if not os.path.isdir(root_dir):
