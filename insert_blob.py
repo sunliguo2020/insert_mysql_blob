@@ -34,7 +34,7 @@ from concurrent.futures import ThreadPoolExecutor,as_completed
 debug,info,warning,error,critical
 '''
 logging.basicConfig(filename='insert_blob.log',
-                    level="DEBUG",
+                    level=logging.DEBUG,
                     filemode='a',
                     encoding='utf-8',
                     format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(message)s')
