@@ -26,6 +26,7 @@ import sys
 import time
 import logging
 import traceback
+import json
 from sun_tool.db import db
 from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor,as_completed
@@ -153,10 +154,15 @@ def insert_blob(file_path, table='', database='crawl'):
 
 if __name__ == '__main__':
 
+    json_file = 'config.json'
+    with open(json_file,encoding='utf-8') as fp:
+        cfg = json.load(fp)
+
     # 导入文件所在的目录
-    root_dir = r'F:\pycharm\ShouGuangYun\jiankang\Head_pic'
+    root_dir = cfg.get['root_dir']
     # 将要导入的数据表
-    table = 'Head_pic'
+    table = cfg.get['table']
+
 
     if not os.path.isdir(root_dir):
         print(root_dir, "不是一个目录")
@@ -174,7 +180,7 @@ if __name__ == '__main__':
             futures.append(t.submit(insert_blob, file_path, table))
 
         #等待返回的结果，结果都是None，暂时没发现改怎么用
-        for future in as_completed(futures):
-            pool_result.append(future.result())
+        # for future in as_completed(futures):
+        #     pool_result.append(future.result())
 
-    print(pool_result[:20])
+    # print(pool_result[:20])

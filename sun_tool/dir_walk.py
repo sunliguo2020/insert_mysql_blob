@@ -7,8 +7,10 @@
  @Project : pycharm
 '''
 import os
+
+
 def dir_walk(file_dir):
-    for root,dirs,files in os.walk(file_dir):
+    for root, dirs, files in os.walk(file_dir):
         for file in files:
-            file_path =os.path.join(root,file)
-            yield  file_path
+            file_path = os.path.join(root, file)
+            yield file_path
