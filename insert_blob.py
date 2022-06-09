@@ -34,7 +34,7 @@ debug,info,warning,error,critical
 '''
 logging.basicConfig(filename='insert_blob.log',
                     level=logging.DEBUG,
-                    filemode='a',
+                    filemode='w',
                     encoding='utf-8',
                     format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(message)s')
 
