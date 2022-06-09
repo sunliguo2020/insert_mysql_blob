@@ -100,7 +100,7 @@ def check_del(file_path, md5sum, table=''):
             else:
                 logging.info(f"{file_path}删除成功")
         except Exception as e:
-            print(traceback.format_exc())
+            logging.error(traceback.format_exc())
             logging.error("删除出错", e)
         return 1
     else:
@@ -112,7 +112,6 @@ def insert_blob(file_path, table=''):
     """
     把文件插入到mysql中
     :param file_path: 要插入的文件路径
-    :param database:   将要插入的数据库
     :param table:   将要插入的数据表
     :return:
     """
@@ -163,7 +162,7 @@ if __name__ == '__main__':
     futures = []
     pool_result = []
 
-    with ThreadPoolExecutor(max_workers=30) as t:
+    with ThreadPoolExecutor() as t:
         for file_path in dir_walk(root_dir):
             file_count += 1
             print(file_count, file_path)
