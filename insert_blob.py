@@ -166,6 +166,11 @@ if __name__ == '__main__':
         for file_path in dir_walk(root_dir):
             file_count += 1
             print(file_count, file_path)
+
+            #防止程序占用太高
+            if file_count %10000 == 0:
+                time.sleep(100)
+                
             #向线程池中提交任务
             futures.append(t.submit(insert_blob, file_path, table))
 
