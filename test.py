@@ -36,6 +36,17 @@ import json
 
 from sun_tool.dir_walk import dir_walk
 
-for i in dir_walk(r'd:\pycha*'):
+# for i in dir_walk(r'd:\pycha*'):
+#     print(i)
+#     # break
+
+#测试 列表生成式
+
+from sun_tool.dir_walk import dir_walk
+for i in dir_walk("d:\\"):
     print(i)
-    # break
+    break
+
+file_list = [(i,'table') for i in dir_walk("d:\pycharm")]
+print(file_list[:100])
+print(len(file_list))
