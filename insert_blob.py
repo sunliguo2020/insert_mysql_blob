@@ -16,27 +16,25 @@
 
 遗留问题：
     1、线程池似乎没有起作用。
-    2、加入的文件夹和数据表是不是单独放一个文件，不用修改这个文件？
-    3、
+    2、
 """
 import hashlib
 import os
 import os.path
-import sys
 import time
 import logging
 import traceback
 import json
 from sun_tool.db import db
 from sun_tool.dir_walk import dir_walk
-from concurrent.futures import ThreadPoolExecutor,as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 '''
 debug,info,warning,error,critical
 '''
 logging.basicConfig(filename='insert_blob.log',
                     level=logging.DEBUG,
-                    filemode='a',
+                    filemode='w',
                     encoding='utf-8',
                     format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(message)s')
 
@@ -102,7 +100,7 @@ def check_del(file_path, md5sum, table=''):
             else:
                 logging.info(f"{file_path}删除成功")
         except Exception as e:
-            print(traceback.format_exc())
+            logging.error(traceback.format_exc())
             logging.error("删除出错", e)
         return 1
     else:
@@ -110,11 +108,10 @@ def check_del(file_path, md5sum, table=''):
         return None
 
 
-def insert_blob(file_path, table='', database='crawl'):
+def insert_blob(file_path, table=''):
     """
     把文件插入到mysql中
     :param file_path: 要插入的文件路径
-    :param database:   将要插入的数据库
     :param table:   将要插入的数据表
     :return:
     """
@@ -142,8 +139,6 @@ def insert_blob(file_path, table='', database='crawl'):
         except Exception as e:
             logging.error(file_name, "插入失败", e)
 
-            # with open(insert_file_failed, 'a', encoding='utf-8') as f:
-            #     f.write(str(insert_time) + f' {file_name} 插入失败 {e} ' + "\n")
         else:  # 插入成功，准备检查并删除
             result = check_del(file_path, md5sum, table)
             if result == 1:
@@ -155,7 +150,7 @@ def insert_blob(file_path, table='', database='crawl'):
 if __name__ == '__main__':
 
     json_file = 'config.json'
-    with open(json_file,encoding='utf-8') as fp:
+    with open(json_file, encoding='utf-8') as fp:
         cfg = json.load(fp)
 
     # 导入文件所在的目录
@@ -163,23 +158,23 @@ if __name__ == '__main__':
     # 将要导入的数据表
     table = cfg.get('table')
 
-
-    if not os.path.isdir(root_dir):
-        print(root_dir, "不是一个目录")
-        sys.exit(-1)
-
     file_count = 0
     futures = []
     pool_result = []
 
-    with ThreadPoolExecutor(max_workers=30) as t:
+    with ThreadPoolExecutor() as t:
         for file_path in dir_walk(root_dir):
             file_count += 1
             print(file_count, file_path)
-            #向线程池中提交任务
+
+            # 防止程序占用太高
+            if file_count % 10000 == 0:
+                time.sleep(30)
+
+            # 向线程池中提交任务
             futures.append(t.submit(insert_blob, file_path, table))
 
-        #等待返回的结果，结果都是None，暂时没发现改怎么用
+        # 等待返回的结果，结果都是None，暂时没发现改怎么用
         # for future in as_completed(futures):
         #     pool_result.append(future.result())
 
