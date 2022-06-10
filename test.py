@@ -43,10 +43,10 @@ from sun_tool.dir_walk import dir_walk
 #测试 列表生成式
 
 from sun_tool.dir_walk import dir_walk
-for i in dir_walk("d:\\"):
+for i in dir_walk("d:\pycharm\ShouGuangYun\shebao\workers\2022-03-20\15662505519.txt"):
     print(i)
-    break
 
-file_list = [(i,'table') for i in dir_walk("d:\pycharm")]
-print(file_list[:100])
-print(len(file_list))
+
+# file_list = [(i,'table') for i in dir_walk("d:\pycharm")]
+# print(file_list[:100])
+# print(len(file_list))

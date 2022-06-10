@@ -27,7 +27,7 @@ import traceback
 import json
 from sun_tool.db import db
 from sun_tool.dir_walk import dir_walk
-from concurrent.futures import ThreadPoolExecutor,as_completed
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 '''
 debug,info,warning,error,critical
@@ -150,7 +150,7 @@ def insert_blob(file_path, table=''):
 if __name__ == '__main__':
 
     json_file = 'config.json'
-    with open(json_file,encoding='utf-8') as fp:
+    with open(json_file, encoding='utf-8') as fp:
         cfg = json.load(fp)
 
     # 导入文件所在的目录
@@ -167,14 +167,14 @@ if __name__ == '__main__':
             file_count += 1
             print(file_count, file_path)
 
-            #防止程序占用太高
-            if file_count %10000 == 0:
-                time.sleep(100)
-                
-            #向线程池中提交任务
+            # 防止程序占用太高
+            if file_count % 10000 == 0:
+                time.sleep(30)
+
+            # 向线程池中提交任务
             futures.append(t.submit(insert_blob, file_path, table))
 
-        #等待返回的结果，结果都是None，暂时没发现改怎么用
+        # 等待返回的结果，结果都是None，暂时没发现改怎么用
         # for future in as_completed(futures):
         #     pool_result.append(future.result())
 
