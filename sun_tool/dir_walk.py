@@ -20,7 +20,7 @@ def dir_walk(file_dir):
     :return:
     """
     # print(file_dir)
-    for item in glob.iglob(file_dir,recursive=True):
+    for item in glob.iglob(file_dir, recursive=True):
 
         if os.path.isdir(item):
 
@@ -28,7 +28,6 @@ def dir_walk(file_dir):
                 for file in files:
                     file_path = os.path.join(root, file)
                     yield file_path
-
 
 
 if __name__ == '__main__':

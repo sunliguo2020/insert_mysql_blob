@@ -16,7 +16,7 @@
 
 遗留问题：
     1、线程池似乎没有起作用。
-    2、
+    2、插入长文件名的时候，没有插入成功，但是没有报错？
 """
 import hashlib
 import os
@@ -121,9 +121,7 @@ def insert_blob(file_path, table=''):
     blob = file_blob(file_path)
     modtime = file_modtime(file_path)
 
-    # 检查文件是否已经存在 md5sum 值相同，并且文件名相同
-    # 有些文件虽然文件名一样但是md5值可以不同
-    # 文件名和MD5值都一样的情况：
+    # 检查文件是否已经存在 md5sum 值相同
     logging.debug(f"查询数据库中是否有该文件:{file_name}")
 
     result = check_del(file_path, md5sum, table)
@@ -131,6 +129,8 @@ def insert_blob(file_path, table=''):
         logging.info(f"{file_path}有该文件并且已删除")
     elif result is None:  # 查询不到该文件，准备插入
         logging.debug(f"{file_name}查询不到该文件，准备插入")
+        if len(file_name) >50:
+            logging.warning(f"{file_name}文件名超出了50个字符！")
         query = f'insert into {table}  values (NULL,%s,%s,%s,%s)'
         args = (file_name, md5sum, blob, modtime)
 
@@ -143,6 +143,8 @@ def insert_blob(file_path, table=''):
             result = check_del(file_path, md5sum, table)
             if result == 1:
                 logging.info(f"插入{file_path}后删除成功")
+            else:
+                logging.info(f'{file_path}没有插入成功')
     else:
         print("未知！")
 
