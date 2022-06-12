@@ -20,8 +20,9 @@ p = psutil.Process(pid)
 interval = 3 #polling seconds
 with open("proc"+p.name()+str(pid)+'.csv','a') as fp:
     fp.write('time,cpu%,mem%\n')
-    current_time = time.strftime('%Y%m%d-%H%M%S',time.localtime(time.time()))
-    cpu_percent = p.cpu_percent()
-    mem_percent = p.memory_percent()
-    fp.write(f"{current_time},{str(cpu_percent)},{str(mem_percent)}\n")
-    time.sleep(interval)
+    while True:
+        current_time = time.strftime('%Y%m%d-%H%M%S',time.localtime(time.time()))
+        cpu_percent = p.cpu_percent()
+        mem_percent = p.memory_percent()
+        fp.write(f"{current_time},{str(cpu_percent)},{str(mem_percent)}\n")
+        time.sleep(interval)
