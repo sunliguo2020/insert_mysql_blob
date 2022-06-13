@@ -41,12 +41,14 @@ from sun_tool.dir_walk import dir_walk
 #     # break
 
 #测试 列表生成式
-
-from sun_tool.dir_walk import dir_walk
-for i in dir_walk("d:\pycharm\ShouGuangYun\shebao\workers\2022-03-20\15662505519.txt"):
-    print(i)
+#
+# from sun_tool.dir_walk import dir_walk
+# for i in dir_walk("d:\pycharm\ShouGuangYun\shebao\workers\2022-03-20\15662505519.txt"):
+#     print(i)
 
 
 # file_list = [(i,'table') for i in dir_walk("d:\pycharm")]
 # print(file_list[:100])
 # print(len(file_list))
+
+print(len('5102345(SUN--Administrator--2013-10-08-20,22,39).x'))
