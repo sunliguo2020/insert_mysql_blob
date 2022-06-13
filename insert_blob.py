@@ -17,7 +17,7 @@
 
 遗留问题：
     1、线程池似乎没有起作用。
-    2、插入长文件名的时候，没有插入成功，但是没有报错？
+    2、插入长文件名的时候，没有插入成功，但是没有报错？原因是文件名截断后插入了。
 """
 import hashlib
 import os
@@ -122,8 +122,8 @@ def insert_blob(file_path, table=''):
     blob = file_blob(file_path)
     modtime = file_modtime(file_path)
 
-    #记录处理文件的个数
-    logging.debug(f'要处理文件的个数：{file_path_list.index(file_path)}')
+    # 记录处理文件的个数
+    logging.debug(f'正要处理文件的个数：{file_path_list.index(file_path)}/{len(file_path_list)}')
 
     # 检查文件是否已经存在 md5sum 值相同
     logging.debug(f"查询数据库中是否有该文件:{file_name}")
@@ -155,6 +155,7 @@ def insert_blob(file_path, table=''):
 
 if __name__ == '__main__':
 
+    # 配置文件
     json_file = 'config.json'
     with open(json_file, encoding='utf-8') as fp:
         cfg = json.load(fp)
@@ -168,7 +169,7 @@ if __name__ == '__main__':
     futures = []
     pool_result = []
 
-    #记录要处理的文件列表
+    # 记录要处理的文件列表
     file_path_list = []
 
     with ThreadPoolExecutor() as t:
