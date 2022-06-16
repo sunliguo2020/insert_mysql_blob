@@ -123,7 +123,7 @@ def insert_blob(file_path, table=''):
     modtime = file_modtime(file_path)
 
     # 记录处理文件的个数
-    logging.debug(f'正要处理文件的个数：{file_path_list.index(file_path)}/{len(file_path_list)}')
+    logging.debug(f'已经处理完文件个数/剩余文件总数：{file_count-len(file_path_list)}/{len(file_path_list)}')
 
     # 检查文件是否已经存在 md5sum 值相同
     logging.debug(f"查询数据库中是否有该文件:{file_name}")
@@ -131,6 +131,7 @@ def insert_blob(file_path, table=''):
     result = check_del(file_path, md5sum, table)
     if result == 1:
         logging.info(f"{file_path}有该文件并且已删除")
+        file_path_list.remove(file_path)
     elif result is None:  # 查询不到该文件，准备插入
         logging.debug(f"{file_name}查询不到该文件，准备插入")
         if len(file_name) > 50:
@@ -147,6 +148,7 @@ def insert_blob(file_path, table=''):
             result = check_del(file_path, md5sum, table)
             if result == 1:
                 logging.info(f"插入{file_path}后删除成功")
+                file_path_list.remove(file_path)
             else:
                 logging.info(f'{file_path}没有插入成功')
     else:
