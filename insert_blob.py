@@ -100,7 +100,7 @@ def check_del(file_path, md5sum, table=''):
             else:
                 logging.info(f"{file_path}删除成功")
         except Exception as e:
-            logging.error(traceback.format_exc())
+            # logging.error(traceback.format_exc())
             logging.error("删除出错", e)
         return 1
     else:
