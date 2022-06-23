@@ -19,8 +19,9 @@ def dir_walk(file_dir):
     :param file_dir:
     :return:
     """
-    # print(file_dir)
+
     for item in glob.iglob(file_dir, recursive=True):
+        print(item)
 
         if os.path.isdir(item):
 

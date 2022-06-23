@@ -13,10 +13,11 @@
 2022-04-08：统计插入失败的文件（后来注释了）
 2022-06-04:使用git统一管理，以后就不会很混乱了。
             准备增加logging
+2022-06-13:日志中记录本次处理到的文件个数
 
 遗留问题：
     1、线程池似乎没有起作用。
-    2、插入长文件名的时候，没有插入成功，但是没有报错？
+    2、插入长文件名的时候，没有插入成功，但是没有报错？原因是文件名截断后插入了。
 """
 import hashlib
 import os
@@ -121,15 +122,19 @@ def insert_blob(file_path, table=''):
     blob = file_blob(file_path)
     modtime = file_modtime(file_path)
 
+    # 记录处理文件的个数
+    logging.debug(f'已经处理完文件个数/剩余文件总数：{file_count-len(file_path_list)}/{len(file_path_list)}')
+
     # 检查文件是否已经存在 md5sum 值相同
     logging.debug(f"查询数据库中是否有该文件:{file_name}")
 
     result = check_del(file_path, md5sum, table)
     if result == 1:
         logging.info(f"{file_path}有该文件并且已删除")
+        file_path_list.remove(file_path)
     elif result is None:  # 查询不到该文件，准备插入
         logging.debug(f"{file_name}查询不到该文件，准备插入")
-        if len(file_name) >50:
+        if len(file_name) > 50:
             logging.warning(f"{file_name}文件名超出了50个字符！")
         query = f'insert into {table}  values (NULL,%s,%s,%s,%s)'
         args = (file_name, md5sum, blob, modtime)
@@ -143,6 +148,7 @@ def insert_blob(file_path, table=''):
             result = check_del(file_path, md5sum, table)
             if result == 1:
                 logging.info(f"插入{file_path}后删除成功")
+                file_path_list.remove(file_path)
             else:
                 logging.info(f'{file_path}没有插入成功')
     else:
@@ -151,6 +157,7 @@ def insert_blob(file_path, table=''):
 
 if __name__ == '__main__':
 
+    # 配置文件
     json_file = 'config.json'
     with open(json_file, encoding='utf-8') as fp:
         cfg = json.load(fp)
@@ -164,10 +171,15 @@ if __name__ == '__main__':
     futures = []
     pool_result = []
 
+    # 记录要处理的文件列表
+    file_path_list = []
+
     with ThreadPoolExecutor() as t:
         for file_path in dir_walk(root_dir):
             file_count += 1
             print(file_count, file_path)
+
+            file_path_list.append(file_path)
 
             # 防止程序占用太高
             if file_count % 10000 == 0:
