@@ -123,7 +123,7 @@ def insert_blob(file_path, table=''):
     modtime = file_modtime(file_path)
 
     # 记录处理文件的个数
-    logging.debug(f'已经处理完文件个数/剩余文件总数：{file_count-len(file_path_list)}/{len(file_path_list)}')
+    logging.debug(f'已经处理完文件个数/剩余文件总数：{file_count - len(file_path_list)}/{len(file_path_list)}')
 
     # 检查文件是否已经存在 md5sum 值相同
     logging.debug(f"查询数据库中是否有该文件:{file_name}")
@@ -178,18 +178,12 @@ if __name__ == '__main__':
         for file_path in dir_walk(root_dir):
             file_count += 1
             print(file_count, file_path)
-
             file_path_list.append(file_path)
 
             # 防止程序占用太高
-            if len(file_path_list)>10000:
-                time.sleep(len(file_path_list)/1000)
+            if len(file_path_list) > 10000:
+                time.sleep(len(file_path_list) / 1000)
+            else:
+                # 向线程池中提交任务
+                futures.append(t.submit(insert_blob, file_path, table))
 
-            # 向线程池中提交任务
-            futures.append(t.submit(insert_blob, file_path, table))
-
-        # 等待返回的结果，结果都是None，暂时没发现改怎么用
-        # for future in as_completed(futures):
-        #     pool_result.append(future.result())
-
-    # print(pool_result[:20])
