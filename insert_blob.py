@@ -183,7 +183,7 @@ if __name__ == '__main__':
             # 防止程序占用太高
             if len(file_path_list) > 10000:
                 time.sleep(len(file_path_list) / 1000)
-            else:
-                # 向线程池中提交任务
-                futures.append(t.submit(insert_blob, file_path, table))
+
+            # 向线程池中提交任务
+            futures.append(t.submit(insert_blob, file_path, table))
 
