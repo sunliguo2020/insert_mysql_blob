@@ -12,7 +12,7 @@ import json
 
 
 class DBHelper(object):
-    def __init__(self,host=None,user=None,password=None):
+    def __init__(self, host=None, user=None, password=None):
         self.pool = PooledDB(
             creator=pymysql,
             maxconnections=50,
@@ -45,20 +45,18 @@ class DBHelper(object):
 
     def fetch_one(self, sql, **kwargs):
         """
-        
         :param sql:
         :param kwargs:
         :return:
         """
-        # print("fetch one ")
-        # print(sql)
-        # print(kwargs)
+        result = None
+        try:
+            conn, cur = self.get_conn_cursor()
+            cur.execute(sql, kwargs)
+            result = cur.fetchone()
 
-        conn, cur = self.get_conn_cursor()
-        cur.execute(sql, kwargs)
-
-        result = cur.fetchone()
-        self.close_conn_cursor(cur, conn)
+        finally:
+            self.close_conn_cursor(cur, conn)
 
         return result
 
@@ -70,12 +68,15 @@ class DBHelper(object):
         self.close_conn_cursor(cur, conn)
         return result
 
+
 json_file = 'config.json'
-with open(json_file,encoding='utf-8') as fp:
+with open(json_file, encoding='utf-8') as fp:
     cfg = json.load(fp)
 
 host = cfg.get('mysql').get('host')
 user = cfg.get('mysql').get('user')
 password = cfg.get('mysql').get('password')
 # host = cfg.get('mysql').get('host')
-db = DBHelper(host=host,user=user,password=password)
+
+
+db = DBHelper(host=host, user=user, password=password)

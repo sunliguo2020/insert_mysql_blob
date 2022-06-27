@@ -1,6 +1,6 @@
 {
-  "root_dir": "F:\\pycharm\\ShouGuangYun\\jiankang\\Head_pic",
-  "table": "Head_pic",
+  "root_dir": "D:\\pycharm\\ShouGuangMinSheng\\new_reply",
+  "table": "sgms_new_reply",
   "mysql": {
     "user": "root",
     "password": "admin",
