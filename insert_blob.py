@@ -4,7 +4,6 @@
 @contact: QQ376440229
 @Created on: 2022/3/13 22:03
 
-
 保存文件到mysql中，
     id,file_name,content,md5sum,blob,mod_time
 
@@ -47,7 +46,6 @@ def file_blob(filename):
     :return:
     """
     if os.path.isfile(filename):
-
         with open(filename, 'rb') as f:
             blob = f.read()
         return blob
@@ -90,9 +88,7 @@ def check_del(file_path, md5sum, table=''):
     sql = f'select md5sum from {table} where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;'
     result = db.fetch_one(sql, md5sum=md5sum, file_name=file_name)
     if result is not None:
-
         logging.info(f'{file_name}文件已经存在！md5:{md5sum}')
-
         # 删除已经存在的文件
         try:
             os.remove(file_path)
