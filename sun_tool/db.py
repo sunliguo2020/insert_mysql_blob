@@ -8,7 +8,11 @@
 '''
 import pymysql
 from dbutils.pooled_db import PooledDB
-import json
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.dirname(os.getcwd())))
+# print(sys.path)
+from insert_mysql_blob.settings import Settings
 
 
 class DBHelper(object):
@@ -68,15 +72,8 @@ class DBHelper(object):
         self.close_conn_cursor(cur, conn)
         return result
 
+mySettings = Settings()
+# print(mySettings.host)
+# print(dir(mySettings))
 
-json_file = 'config.json'
-with open(json_file, encoding='utf-8') as fp:
-    cfg = json.load(fp)
-
-host = cfg.get('mysql').get('host')
-user = cfg.get('mysql').get('user')
-password = cfg.get('mysql').get('password')
-# host = cfg.get('mysql').get('host')
-
-
-db = DBHelper(host=host, user=user, password=password)
+db = DBHelper(host=mySettings.host, user=mySettings.user, password=mySettings.password)

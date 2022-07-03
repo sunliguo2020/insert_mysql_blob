@@ -4,7 +4,6 @@
 @contact: QQ376440229
 @Created on: 2022/3/13 22:03
 
-
 保存文件到mysql中，
     id,file_name,content,md5sum,blob,mod_time
 
@@ -14,6 +13,7 @@
 2022-06-04:使用git统一管理，以后就不会很混乱了。
             准备增加logging
 2022-06-13:日志中记录本次处理到的文件个数
+2022-07-03:添加设置类
 
 遗留问题：
     1、线程池似乎没有起作用。
@@ -29,6 +29,7 @@ import json
 from sun_tool.db import db
 from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from settings import Settings
 
 '''
 debug,info,warning,error,critical
@@ -47,7 +48,6 @@ def file_blob(filename):
     :return:
     """
     if os.path.isfile(filename):
-
         with open(filename, 'rb') as f:
             blob = f.read()
         return blob
@@ -90,9 +90,7 @@ def check_del(file_path, md5sum, table=''):
     sql = f'select md5sum from {table} where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;'
     result = db.fetch_one(sql, md5sum=md5sum, file_name=file_name)
     if result is not None:
-
         logging.info(f'{file_name}文件已经存在！md5:{md5sum}')
-
         # 删除已经存在的文件
         try:
             os.remove(file_path)
@@ -123,7 +121,7 @@ def insert_blob(file_path, table=''):
     modtime = file_modtime(file_path)
 
     # 记录处理文件的个数
-    logging.debug(f'已经处理完文件个数/剩余文件总数：{file_count-len(file_path_list)}/{len(file_path_list)}')
+    logging.debug(f'已经处理完文件个数/剩余文件总数：{file_count - len(file_path_list)}/{len(file_path_list)}')
 
     # 检查文件是否已经存在 md5sum 值相同
     logging.debug(f"查询数据库中是否有该文件:{file_name}")
@@ -157,15 +155,7 @@ def insert_blob(file_path, table=''):
 
 if __name__ == '__main__':
 
-    # 配置文件
-    json_file = 'config.json'
-    with open(json_file, encoding='utf-8') as fp:
-        cfg = json.load(fp)
-
-    # 导入文件所在的目录
-    root_dir = cfg.get('root_dir')
-    # 将要导入的数据表
-    table = cfg.get('table')
+    settings = Settings()
 
     file_count = 0
     futures = []
@@ -175,21 +165,15 @@ if __name__ == '__main__':
     file_path_list = []
 
     with ThreadPoolExecutor() as t:
-        for file_path in dir_walk(root_dir):
+        for file_path in dir_walk(settings.root_dir):
             file_count += 1
             print(file_count, file_path)
-
             file_path_list.append(file_path)
 
             # 防止程序占用太高
-            if len(file_path_list)>10000:
-                time.sleep(len(file_path_list)/1000)
+            if len(file_path_list) > 10000:
+                time.sleep(len(file_path_list) / 1000)
 
             # 向线程池中提交任务
-            futures.append(t.submit(insert_blob, file_path, table))
+            futures.append(t.submit(insert_blob, file_path, settings.table))
 
-        # 等待返回的结果，结果都是None，暂时没发现改怎么用
-        # for future in as_completed(futures):
-        #     pool_result.append(future.result())
-
-    # print(pool_result[:20])

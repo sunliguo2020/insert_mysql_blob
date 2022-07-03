@@ -1,6 +1,6 @@
 {
-  "root_dir": "D:\\pycharm\\ShouGuangMinSheng\\new_reply",
-  "table": "sgms_new_reply",
+  "root_dir": "D:\\pycharm\\ShouGuangYun\\token",
+  "table": "token",
   "mysql": {
     "user": "root",
     "password": "admin",
