@@ -13,6 +13,7 @@
 2022-06-04:使用git统一管理，以后就不会很混乱了。
             准备增加logging
 2022-06-13:日志中记录本次处理到的文件个数
+2022-07-03:添加设置类
 
 遗留问题：
     1、线程池似乎没有起作用。
@@ -28,6 +29,7 @@ import json
 from sun_tool.db import db
 from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from settings import Settings
 
 '''
 debug,info,warning,error,critical
@@ -153,15 +155,7 @@ def insert_blob(file_path, table=''):
 
 if __name__ == '__main__':
 
-    # 配置文件
-    json_file = 'config.json'
-    with open(json_file, encoding='utf-8') as fp:
-        cfg = json.load(fp)
-
-    # 导入文件所在的目录
-    root_dir = cfg.get('root_dir')
-    # 将要导入的数据表
-    table = cfg.get('table')
+    settings = Settings()
 
     file_count = 0
     futures = []
@@ -171,7 +165,7 @@ if __name__ == '__main__':
     file_path_list = []
 
     with ThreadPoolExecutor() as t:
-        for file_path in dir_walk(root_dir):
+        for file_path in dir_walk(settings.root_dir):
             file_count += 1
             print(file_count, file_path)
             file_path_list.append(file_path)
@@ -181,5 +175,5 @@ if __name__ == '__main__':
                 time.sleep(len(file_path_list) / 1000)
 
             # 向线程池中提交任务
-            futures.append(t.submit(insert_blob, file_path, table))
+            futures.append(t.submit(insert_blob, file_path, settings.table))
 
