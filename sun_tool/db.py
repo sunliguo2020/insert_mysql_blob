@@ -11,7 +11,7 @@ from dbutils.pooled_db import PooledDB
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.dirname(os.getcwd())))
-# print(sys.path)
+
 from insert_mysql_blob.settings import Settings
 
 
@@ -73,7 +73,5 @@ class DBHelper(object):
         return result
 
 mySettings = Settings()
-# print(mySettings.host)
-# print(dir(mySettings))
 
 db = DBHelper(host=mySettings.host, user=mySettings.user, password=mySettings.password)

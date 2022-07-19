@@ -24,8 +24,6 @@ import os
 import os.path
 import time
 import logging
-import traceback
-import json
 from sun_tool.db import db
 from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor, as_completed
