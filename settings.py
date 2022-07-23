@@ -11,8 +11,8 @@ class Settings:
 
     def __init__(self):
         """初始化的设置"""
-        self.root_dir = r"D:\pycharm\ShouGuangYun\jiankang\PersonalId"
-        self.table = "PersonalId"
+        self.root_dir = r"Z:\爬虫\网页抓取\资料\guhua\0533"
+        self.table = "guhua"
 
         """数据库链接信息"""
         self.user = "root"

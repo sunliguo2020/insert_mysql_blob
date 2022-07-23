@@ -59,10 +59,14 @@ def file_md5sum(filename):
     :param filename:
     :return:
     """
-    with open(filename, 'rb') as fp:
-        f_content = fp.read()
-        fmd5 = hashlib.md5(f_content)
-    return fmd5.hexdigest()
+    try:
+        with open(filename, 'rb') as fp:
+            f_content = fp.read()
+            fmd5 = hashlib.md5(f_content)
+    except Exception as e:
+        logging.debug("in file_blob"+e)
+    else:
+        return fmd5.hexdigest()
 
 
 def file_modtime(filename):
@@ -112,10 +116,13 @@ def insert_blob(file_path, table=''):
     :param table:   将要插入的数据表
     :return:
     """
+
     # 准备材料
     file_name = os.path.basename(file_path)
     md5sum = file_md5sum(file_path)
     blob = file_blob(file_path)
+    if blob is None:
+        return
     modtime = file_modtime(file_path)
 
     # 记录处理文件的个数
