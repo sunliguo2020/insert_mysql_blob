@@ -11,13 +11,13 @@ class Settings:
 
     def __init__(self):
         """初始化的设置"""
-        self.root_dir = r"Z:\爬虫\网页抓取\资料\guhua\0533"
-        self.table = "guhua"
+        self.root_dir = r"D:\test"
+        self.table = "test"
 
         """数据库链接信息"""
         self.user = "root"
         self.password = "admin"
-        self.host = "192.168.1.207"
+        self.host = "127.0.0.1"
         self.port = '3306'
 
 

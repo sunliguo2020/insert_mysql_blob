@@ -21,6 +21,7 @@
 """
 import hashlib
 import os
+import sys
 import os.path
 import time
 import logging
@@ -38,42 +39,7 @@ logging.basicConfig(filename='insert_blob.log',
                     encoding='utf-8',
                     format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(message)s')
 
-
-def file_blob(filename):
-    """
-    返回文件的二进制
-    :param filename:
-    :return:
-    """
-    if os.path.isfile(filename):
-        with open(filename, 'rb') as f:
-            blob = f.read()
-        return blob
-    else:
-        return None
-
-
-def file_md5sum(filename):
-    """
-    返回文件的md5值
-    :param filename:
-    :return:
-    """
-    try:
-        with open(filename, 'rb') as fp:
-            f_content = fp.read()
-            fmd5 = hashlib.md5(f_content)
-    except FileNotFoundError:
-        logging.debug(f"{filename} is not found!")
-    except PermissionError:
-        logging.debug(f"{filename} PermissionError")
-    except Exception as e:
-        logging.debug("in file_blob" + e)
-    else:
-        return fmd5.hexdigest()
-
-
-def file_blog_md5sum(filename):
+def file_blob_md5sum(filename):
     """
         返回文件的二进制和md5值
     """
@@ -86,7 +52,7 @@ def file_blog_md5sum(filename):
     except PermissionError:
         logging.debug(f"{filename} PermissionError")
     except Exception as e:
-        logging.debug("in file_blob" + e)
+        logging.debug("in file_blob" ,e)
     else:
         return f_content, fmd5.hexdigest()
 
@@ -141,10 +107,17 @@ def insert_blob(file_path, table=''):
 
     # 准备材料
     file_name = os.path.basename(file_path)
-    md5sum = file_md5sum(file_path)
-    blob = file_blob(file_path)
-    if blob is None:
-        return
+
+    # md5sum = file_md5sum(file_path)
+    # blob = file_blob(file_path)
+    # if blob is None:
+    #     return
+    result = file_blob_md5sum(file_path)
+    if result is not None:
+        blob, md5sum = result
+    else:
+        sys.exit(1)
+
     modtime = file_modtime(file_path)
 
     # 记录处理文件的个数
