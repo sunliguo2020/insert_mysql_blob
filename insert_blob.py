@@ -63,10 +63,32 @@ def file_md5sum(filename):
         with open(filename, 'rb') as fp:
             f_content = fp.read()
             fmd5 = hashlib.md5(f_content)
+    except FileNotFoundError:
+        logging.debug(f"{filename} is not found!")
+    except PermissionError:
+        logging.debug(f"{filename} PermissionError")
     except Exception as e:
-        logging.debug("in file_blob"+e)
+        logging.debug("in file_blob" + e)
     else:
         return fmd5.hexdigest()
+
+
+def file_blog_md5sum(filename):
+    """
+        返回文件的二进制和md5值
+    """
+    try:
+        with open(filename, 'rb') as fp:
+            f_content = fp.read()
+            fmd5 = hashlib.md5(f_content)
+    except FileNotFoundError:
+        logging.debug(f"{filename} is not found!")
+    except PermissionError:
+        logging.debug(f"{filename} PermissionError")
+    except Exception as e:
+        logging.debug("in file_blob" + e)
+    else:
+        return f_content, fmd5.hexdigest()
 
 
 def file_modtime(filename):
@@ -181,4 +203,3 @@ if __name__ == '__main__':
 
             # 向线程池中提交任务
             futures.append(t.submit(insert_blob, file_path, settings.table))
-
