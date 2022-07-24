@@ -39,6 +39,7 @@ logging.basicConfig(filename='insert_blob.log',
                     encoding='utf-8',
                     format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(message)s')
 
+
 def file_blob_md5sum(filename):
     """
         返回文件的二进制和md5值
@@ -52,7 +53,7 @@ def file_blob_md5sum(filename):
     except PermissionError:
         logging.debug(f"{filename} PermissionError")
     except Exception as e:
-        logging.debug("in file_blob" ,e)
+        logging.debug("in file_blob", e)
     else:
         return f_content, fmd5.hexdigest()
 
