@@ -25,9 +25,11 @@ import sys
 import os.path
 import time
 import logging
-from sun_tool.db import db
+
+from sun_tool.db import DBHelper
 from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor, as_completed
+
 from settings import Settings
 
 '''
@@ -156,7 +158,12 @@ def insert_blob(file_path, table=''):
 
 if __name__ == '__main__':
 
-    settings = Settings()
+    settings = Settings(root_dir=r"F:\BaiduNetdiskDownload",
+                        table='guhua')
+    db = DBHelper(host=settings.host,
+                  port=settings.port,
+                  user=settings.user,
+                  password=settings.password)
 
     file_count = 0
     futures = []
