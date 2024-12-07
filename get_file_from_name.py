@@ -19,15 +19,15 @@ def get_file_from_mysql(file_name, table):
     """
     try:
         # 使用with语句管理数据库连接和游标
-        with  pymysql.Connect(host='192.168.1.207',
-                           port=3306,
-                           user='root',
-                           passwd='admin',
-                           db='crawl') as conn:
+        with pymysql.Connect(host='192.168.1.207',
+                             port=3306,
+                             user='root',
+                             passwd='admin',
+                             db='crawl') as conn:
             with conn.cursor() as cur:
                 # 使用参数化擦寻防止SQL注入
                 sql = f'select `file_name`,`blob` ,`md5sum` from `{table}` where `file_name` like %s ;'
-                cur.execute(sql,(f"{file_name}.txt",))
+                cur.execute(sql, (f"{file_name}.txt",))
                 result = cur.fetchone()
                 # print(cur.description)
                 while result:
@@ -36,9 +36,10 @@ def get_file_from_mysql(file_name, table):
     except pymysql.MySQLError as e:
         print(f"数据库查询出错：{e}")
 
-def write_file_form_mysql(file_name,table):
+
+def write_file_form_mysql(file_name, table):
     """
-          从 MySQL 数据库中查询文件内容，并将其保存到本地目录中。
+    从 MySQL 数据库中查询文件内容，并将其保存到本地目录中。
 
     :param file_name: 要查询的文件名（不包括扩展名）
     :param table: 要查询的数据表名
@@ -65,7 +66,6 @@ def write_file_form_mysql(file_name,table):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-       
 
 if __name__ == '__main__':
-    write_file_form_mysql('5406399','guhua')
+    write_file_form_mysql('baoshu', 'phone')

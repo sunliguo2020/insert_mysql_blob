@@ -6,13 +6,17 @@
  @File : db.py
 
 """
+import logging
+
 import pymysql
 from dbutils.pooled_db import PooledDB
+
+logger = logging.getLogger('my_project')
 
 
 class DBHelper(object):
     """
-    Mysql 小助手
+    Mysql 数据库操作助手
     """
 
     def __init__(self,
@@ -22,10 +26,10 @@ class DBHelper(object):
                  password=None,
                  database='crawl'):
         """
-
-        @param host:
-        @param user:
-        @param password:
+        初始化数据库连接池
+        @param host:数据库主机地址
+        @param user:数据库用户名
+        @param password:数据库密码
         """
         self.pool = PooledDB(
             creator=pymysql,
@@ -43,10 +47,10 @@ class DBHelper(object):
             charset='utf8'
         )
 
-    def get_conn_cursor(self):
+    def get_connection(self):
         """
-
-        @return:
+        获取数据库连接和游标
+        @return: (connection,cursor) 元组
         """
         conn = self.pool.connection()
         cursor = conn.cursor()
@@ -60,28 +64,40 @@ class DBHelper(object):
         for item in args:
             item.close()
 
-    def exec(self, sql, args=None):
+    def exec(self, sql, params=None):
         """
-
-        @param sql:
-        @param args:
+        执行SQL语句（不返回结果）
+        @param params: SQL参数，元组或列表
+        @param sql:SQL语句
         """
-        conn, cur = self.get_conn_cursor()
-        cur.execute(sql, args)
-        conn.commit()
+        try:
+            conn, cur = self.get_connection()
+            cur.execute(sql, params)
+            conn.commit()
+        except pymysql.Error as e:
+            logging.error(f"SQL执行失败：{e}")
+        finally:
+            cur.close()
+            conn.close()
 
     def fetch_one(self, sql, **kwargs):
         """
-        :param sql:
-        :param kwargs:
-        :return:
+        执行SQL语句并返回一行结果
+        :param sql:SQL语句
+        :param kwargs: SQL 参数，字典格式，但内部会转换为元组
+        :return:一行结果或None
         """
-        result = None
-        try:
-            conn, cur = self.get_conn_cursor()
-            cur.execute(sql, kwargs)
-            result = cur.fetchone()
+        params = tuple(kwargs.values()) if kwargs else None
 
+        # print(f"kwargs:{kwargs},params:{params}")
+
+        try:
+            conn, cur = self.get_connection()
+            cur.execute(sql, params)
+            result = cur.fetchone()
+        except pymysql.Error as e:
+            logging.error(f"SQL 查询失败:{e}")
+            result = None
         finally:
             self.close_conn_cursor(cur, conn)
 
@@ -89,14 +105,19 @@ class DBHelper(object):
 
     def fetch_all(self, sql, **kwargs):
         """
-
-        @param sql:
-        @param kwargs:
-        @return:
+        执行SQL语句并返回所有结果
+        @param sql:SQL语句
+        @param kwargs:SQL参数 ，字典格式，但内部会转换为元组
+        @return: 结果列表
         """
-        print("fetch all")
-        conn, cur = self.get_conn_cursor()
-        cur.execute(sql, kwargs)
-        result = cur.fetchall()
-        self.close_conn_cursor(cur, conn)
+        params = tuple(kwargs.values()) if kwargs else None
+        try:
+            conn, cur = self.get_connection()
+            cur.execute(sql, params)
+            result = cur.fetchall()
+        except pymysql.Error as e:
+            logging.error(f"SQL 查询失败: {e}")
+            result = []
+        finally:
+            self.close_conn_cursor(cur, conn)
         return result
