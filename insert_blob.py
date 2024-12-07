@@ -24,156 +24,100 @@ import os
 import os.path
 import time
 import logging
-import traceback
-import json
-from sun_tool.db import db
+
+# 获取一个日志记录器
+logger = logging.getLogger('my_project')
+
 from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from settings import Settings
 
 '''
 debug,info,warning,error,critical
 '''
-logging.basicConfig(filename='insert_blob.log',
-                    level=logging.DEBUG,
-                    filemode='w',
-                    encoding='utf-8',
-                    format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(message)s')
 
 
-def file_blob(filename):
-    """
-    返回文件的二进制
-    :param filename:
-    :return:
-    """
-    if os.path.isfile(filename):
-        with open(filename, 'rb') as f:
-            blob = f.read()
-        return blob
-    else:
-        return None
+# logging.basicConfig(filename='insert_blob.log',
+#                     level=logging.DEBUG,
+#                     filemode='w',
+#                     encoding='utf-8',
+#                     format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(message)s')
 
 
-def file_md5sum(filename):
+class FileProcessor:
     """
-    返回文件的md5值
-    :param filename:
-    :return:
-    """
-    with open(filename, 'rb') as fp:
-        f_content = fp.read()
-        fmd5 = hashlib.md5(f_content)
-    return fmd5.hexdigest()
 
+    """
 
-def file_modtime(filename):
-    """
-    返回文件的修改时间
-    :param filename:
-    :return:
-    """
-    file_modify_time = time.strftime("%Y-%m-%d %H:%M:%S",
-                                     time.localtime(os.path.getmtime(filename)))
-    return file_modify_time
+    def __init__(self, settings, db):
+        self.settings = settings
+        self.db = db
+        self.file_path_list = []
 
-
-def check_del(file_path, md5sum, table=''):
-    """
-    检查数据表中是否有该文件，如果有则删除
-    :param file_path:
-    :param md5sum:
-    :param table:
-    :return: 数据库中没有该文件则返回None，有并且删除了返回1.
-    """
-    file_name = os.path.basename(file_path)
-    sql = f'select md5sum from {table} where `md5sum` =%(md5sum)s and `file_name` = %(file_name)s;'
-    result = db.fetch_one(sql, md5sum=md5sum, file_name=file_name)
-    if result is not None:
-        logging.info(f'{file_name}文件已经存在！md5:{md5sum}')
-        # 删除已经存在的文件
+    def process_file(self, file_path):
         try:
-            os.remove(file_path)
-            if os.path.isfile(file_path):
-                logging.warning(f"{file_path}删除失败")
-            else:
-                logging.info(f"{file_path}删除成功")
+            file_name = os.path.basename(file_path)
+            blob, md5sum = self._get_file_blob_md5sum(file_path)
+            modtime = self._get_file_modtime(file_path)
+
+            if self._check_and_delete_existing_file(file_path, md5sum):
+                logger.info(f"{file_path}已存在并删除")
+                return
+
+            if len(file_name) > 50:
+                logger.warning(f"{file_name}文件名超出了50个字符！")
+
+            self._insert_file_into_db(file_name, md5sum, blob, modtime)
+            logger.info(f"{file_path}插入成功")
+
         except Exception as e:
-            # logging.error(traceback.format_exc())
-            logging.error("删除出错", e)
-        return 1
-    else:
-        logging.info(f"数据库中不存在该文件{file_name}")
-        return None
+            logger.error(f"处理文件{file_path}时出错: {e}")
 
+    def _get_file_blob_md5sum(self, file_path):
+        """
+                返回文件的二进制和md5值
+        """
+        with open(file_path, 'rb') as fp:
+            f_content = fp.read()
+            fmd5 = hashlib.md5(f_content).hexdigest()
+        return f_content, fmd5
 
-def insert_blob(file_path, table=''):
-    """
-    把文件插入到mysql中
-    :param file_path: 要插入的文件路径
-    :param table:   将要插入的数据表
-    :return:
-    """
-    # 准备材料
-    file_name = os.path.basename(file_path)
-    md5sum = file_md5sum(file_path)
-    blob = file_blob(file_path)
-    modtime = file_modtime(file_path)
+    def _get_file_modtime(self, file_path):
+        """
+        返回文件的修改时间
+        @param file_path:
+        @return:
+        """
+        return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getmtime(file_path)))
 
-    # 记录处理文件的个数
-    logging.debug(f'已经处理完文件个数/剩余文件总数：{file_count - len(file_path_list)}/{len(file_path_list)}')
+    def _check_and_delete_existing_file(self, file_path, md5sum):
+        file_name = os.path.basename(file_path)
+        query = f'SELECT md5sum FROM {self.settings.table} WHERE md5sum=%s AND file_name=%s'
+        # result = self.db.fetch_one(query, file_name=file_name, md5sum=md5sum)
+        result = self.db.fetch_one(query, md5sum=md5sum, file_name=file_name)
+        if result:
+            try:
+                os.remove(file_path)
+                logger.info(f"{file_path}删除成功")
+                return True
+            except Exception as e:
+                logger.error(f"删除文件{file_path}时出错: {e}")
+        return False
 
-    # 检查文件是否已经存在 md5sum 值相同
-    logging.debug(f"查询数据库中是否有该文件:{file_name}")
+    def _insert_file_into_db(self, file_name, md5sum, blob, modtime):
+        query = f'INSERT INTO {self.settings.table} VALUES (NULL,%s,%s,%s,%s)'
+        self.db.exec(query, (file_name, md5sum, blob, modtime))
 
-    result = check_del(file_path, md5sum, table)
-    if result == 1:
-        logging.info(f"{file_path}有该文件并且已删除")
-        file_path_list.remove(file_path)
-    elif result is None:  # 查询不到该文件，准备插入
-        logging.debug(f"{file_name}查询不到该文件，准备插入")
-        if len(file_name) > 50:
-            logging.warning(f"{file_name}文件名超出了50个字符！")
-        query = f'insert into {table}  values (NULL,%s,%s,%s,%s)'
-        args = (file_name, md5sum, blob, modtime)
-
-        try:
-            db.exec(query, args)
-        except Exception as e:
-            logging.error(file_name, "插入失败", e)
-
-        else:  # 插入成功，准备检查并删除
-            result = check_del(file_path, md5sum, table)
-            if result == 1:
-                logging.info(f"插入{file_path}后删除成功")
-                file_path_list.remove(file_path)
-            else:
-                logging.info(f'{file_path}没有插入成功')
-    else:
-        print("未知！")
+    def run(self):
+        with ThreadPoolExecutor() as executor:
+            future_to_file = {executor.submit(self.process_file, file_path): file_path for file_path in
+                              dir_walk(self.settings.root_dir)}
+            for future in as_completed(future_to_file):
+                file_path = future_to_file[future]
+                try:
+                    future.result()
+                except Exception as e:
+                    logger.error(f"处理文件{file_path}时出错: {e}")
 
 
 if __name__ == '__main__':
-
-    settings = Settings()
-
-    file_count = 0
-    futures = []
-    pool_result = []
-
-    # 记录要处理的文件列表
-    file_path_list = []
-
-    with ThreadPoolExecutor() as t:
-        for file_path in dir_walk(settings.root_dir):
-            file_count += 1
-            print(file_count, file_path)
-            file_path_list.append(file_path)
-
-            # 防止程序占用太高
-            if len(file_path_list) > 10000:
-                time.sleep(len(file_path_list) / 1000)
-
-            # 向线程池中提交任务
-            futures.append(t.submit(insert_blob, file_path, settings.table))
-
+    pass
