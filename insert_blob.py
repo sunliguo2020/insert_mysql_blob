@@ -31,17 +31,6 @@ logger = logging.getLogger('my_project')
 from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
-'''
-debug,info,warning,error,critical
-'''
-
-
-# logging.basicConfig(filename='insert_blob.log',
-#                     level=logging.DEBUG,
-#                     filemode='w',
-#                     encoding='utf-8',
-#                     format='%(asctime)s-%(filename)s[line:%(lineno)d]-%(message)s')
-
 
 class FileProcessor:
     """
@@ -54,20 +43,24 @@ class FileProcessor:
         self.file_path_list = []
 
     def process_file(self, file_path):
+        logger.info(f"准备处理文件：{file_path}")
         try:
             file_name = os.path.basename(file_path)
             blob, md5sum = self._get_file_blob_md5sum(file_path)
             modtime = self._get_file_modtime(file_path)
 
-            if self._check_and_delete_existing_file(file_path, md5sum):
-                logger.info(f"{file_path}已存在并删除")
-                return
+            # 数据库中已经存在该文件
+            if self._check_existing_file(file_path, md5sum):
+                self._delete_file(file_path)
+            else:
+                # 不存在该文件
+                if len(file_name) > 50:
+                    logger.warning(f"{file_name}文件名超出了50个字符！")
 
-            if len(file_name) > 50:
-                logger.warning(f"{file_name}文件名超出了50个字符！")
-
-            self._insert_file_into_db(file_name, md5sum, blob, modtime)
-            logger.info(f"{file_path}插入成功")
+                self._insert_file_into_db(file_name, md5sum, blob, modtime)
+                logger.info(f"{file_path}插入成功")
+                # TODO 插入成功后删除该文件
+                self._delete_file(file_path)
 
         except Exception as e:
             logger.error(f"处理文件{file_path}时出错: {e}")
@@ -89,21 +82,44 @@ class FileProcessor:
         """
         return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(os.path.getmtime(file_path)))
 
-    def _check_and_delete_existing_file(self, file_path, md5sum):
+    def _check_existing_file(self, file_path, md5sum):
+        """
+        检查数据库中是否已经存在该文件，如果存在则删除准备要插入的文件
+        @param file_path: 准备要插入的文件路径
+        @param md5sum: 文件的md5值
+        @return:
+        """
         file_name = os.path.basename(file_path)
         query = f'SELECT md5sum FROM {self.settings.table} WHERE md5sum=%s AND file_name=%s'
-        # result = self.db.fetch_one(query, file_name=file_name, md5sum=md5sum)
         result = self.db.fetch_one(query, md5sum=md5sum, file_name=file_name)
         if result:
-            try:
-                os.remove(file_path)
-                logger.info(f"{file_path}删除成功")
-                return True
-            except Exception as e:
-                logger.error(f"删除文件{file_path}时出错: {e}")
-        return False
+            logger.info(f"{file_path}已经在数据库中存在!")
+            return True
+        else:
+            logger.info(f"{file_path}没有在数据库中发现该文件")
+
+    def _delete_file(self, file_path):
+        """
+        删除指定的文件，并返回操作是否成功。
+        """
+        try:
+            os.remove(file_path)
+            logger.info(f"{file_path}删除成功")
+            return True
+        except Exception as e:
+            logger.error(f"删除文件{file_path}时出错: {e}")
+            return False
 
     def _insert_file_into_db(self, file_name, md5sum, blob, modtime):
+        """
+
+        @param file_name:
+        @param md5sum:
+        @param blob:
+        @param modtime:
+        @return:
+        """
+        # TODO 插入前判断是否已经存在该文件
         query = f'INSERT INTO {self.settings.table} VALUES (NULL,%s,%s,%s,%s)'
         self.db.exec(query, (file_name, md5sum, blob, modtime))
 
