@@ -3,3 +3,4 @@ insert_blob.log
 __pycache__
 .idea
 *.txt
+*.log
