@@ -19,7 +19,7 @@ handlers:
     level: DEBUG
     formatter: detailed
     filename: app.log
-    mode: 'a'  # append mode
+    mode: 'w'  # append mode
     encoding: 'utf-8'
 
 loggers:

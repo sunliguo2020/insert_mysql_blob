@@ -1,17 +1,16 @@
 # -*- coding: utf-8 -*-
-'''
+"""
  @Time : 2022/6/4 21:57
  @Author : sunliguo
  @Email : sunliguo2006@qq.com
  @File : test.py
  @Project : pycharm
-'''
+"""
 '''
 放一些测试的代码
 '''
 # from sun_tool.db import db
 import json
-
 
 # from insert_blob import file_md5sum
 
@@ -32,7 +31,7 @@ import json
 #     print(i)
 #     # break
 
-#测试通配符
+# 测试通配符
 
 from sun_tool.dir_walk import dir_walk
 
@@ -40,7 +39,7 @@ from sun_tool.dir_walk import dir_walk
 #     print(i)
 #     # break
 
-#测试 列表生成式
+# 测试 列表生成式
 #
 # from sun_tool.dir_walk import dir_walk
 # for i in dir_walk("d:\pycharm\ShouGuangYun\shebao\workers\2022-03-20\15662505519.txt"):
@@ -51,4 +50,18 @@ from sun_tool.dir_walk import dir_walk
 # print(file_list[:100])
 # print(len(file_list))
 
-print(len('5102345(SUN--Administrator--2013-10-08-20,22,39).x'))
+# n = 1000
+# while n > 1:
+#     print(n)
+#     n = n / 2
+# a = [1, 2, ]
+# a.pop()
+
+from logging_config import setup_logging
+
+setup_logging()
+import logging
+
+logger = logging.getLogger('my_project')
+
+logger.debug('sdf')
