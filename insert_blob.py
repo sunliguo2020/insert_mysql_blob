@@ -32,6 +32,18 @@ from sun_tool.dir_walk import dir_walk
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
+class FileInfo:
+    """
+    包含处理文件的基本信息
+    """
+
+    def __init__(self, file_name, md5sum, blob, modtime):
+        self.file_name = file_name
+        self.md5sum = md5sum
+        self.blob = blob
+        self.modtime = modtime
+
+
 class FileProcessor:
     """
 
@@ -43,6 +55,10 @@ class FileProcessor:
         self.file_path_list = []
 
     def process_file(self, file_path):
+        """
+
+        @param file_path:
+        """
         logger.info(f"准备处理文件：{file_path}")
         try:
             file_name = os.path.basename(file_path)
@@ -67,7 +83,7 @@ class FileProcessor:
 
     def _get_file_blob_md5sum(self, file_path):
         """
-                返回文件的二进制和md5值
+         返回文件的二进制和md5值
         """
         with open(file_path, 'rb') as fp:
             f_content = fp.read()
@@ -112,14 +128,22 @@ class FileProcessor:
 
     def _insert_file_into_db(self, file_name, md5sum, blob, modtime):
         """
-
-        @param file_name:
-        @param md5sum:
-        @param blob:
-        @param modtime:
+        将文件信息插入数据库
+        @param file_name:文件名
+        @param md5sum:文件的MD5哈希值
+        @param blob:文件内容（二进制大对象）
+        @param modtime:文件的修改时间
         @return:
         """
         # TODO 插入前判断是否已经存在该文件
+        # 首先检查文件是否已经存在
+        check_query = f"select count(*) from {self.settings.table} where md5sum=%s and file_name=%s"
+        result = self.db.fetch_one(check_query, md5sum=md5sum, file_name=file_name)
+        # 如果结果中的计数不为0（即返回的不是None，并且计数大于0），则表示文件已经存在
+        if result and result[0] > 0:
+            logger.info(f"文件 {file_name} (MD5: {md5sum}) 已经存在于数据库中。")
+            return
+
         query = f'INSERT INTO {self.settings.table} VALUES (NULL,%s,%s,%s,%s)'
         self.db.exec(query, (file_name, md5sum, blob, modtime))
 
