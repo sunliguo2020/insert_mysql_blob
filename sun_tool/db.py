@@ -7,8 +7,8 @@
 
 """
 import logging
-
 import pymysql
+
 from dbutils.pooled_db import PooledDB
 
 logger = logging.getLogger('my_project')

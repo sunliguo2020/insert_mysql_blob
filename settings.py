@@ -14,7 +14,7 @@ class Settings:
                  table=None,
                  user='root',
                  password='admin',
-                 host='192.168.1.207',
+                 host='192.168.110.207',
                  port=3306):
         """初始化的设置,允许传递参数来自定义设置"""
         self.root_dir = root_dir

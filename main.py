@@ -13,12 +13,13 @@ from settings import Settings
 from sun_tool.db import DBHelper
 
 if __name__ == '__main__':
-    settings = Settings(root_dir=r"X:\targz\0635",
+    settings = Settings(root_dir= r"G:\0532",
                         table='guhua')
     db = DBHelper(host=settings.host,
                   port=settings.port,
                   user=settings.user,
-                  password=settings.password)
+                  password=settings.password,
+                  database='crawl')
 
     processor = FileProcessor(settings, db)
     processor.run()

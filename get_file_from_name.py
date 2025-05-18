@@ -19,7 +19,7 @@ def get_file_from_mysql(file_name, table):
     """
     try:
         # 使用with语句管理数据库连接和游标
-        with pymysql.Connect(host='192.168.1.207',
+        with pymysql.Connect(host='192.168.110.207',
                              port=3306,
                              user='root',
                              passwd='admin',
@@ -27,7 +27,7 @@ def get_file_from_mysql(file_name, table):
             with conn.cursor() as cur:
                 # 使用参数化擦寻防止SQL注入
                 sql = f'select `file_name`,`blob` ,`md5sum` from `{table}` where `file_name` like %s ;'
-                cur.execute(sql, (f"{file_name}.txt",))
+                cur.execute(sql, (f"{file_name}",))
                 result = cur.fetchone()
                 # print(cur.description)
                 while result:
@@ -68,4 +68,6 @@ def write_file_form_mysql(file_name, table):
 
 
 if __name__ == '__main__':
-    write_file_form_mysql('baoshu', 'phone')
+    # write_file_form_mysql('baoshu', 'phone')
+    for i in get_file_from_mysql('82061201.txt','guhua'):
+        print(i[0],i[2])
